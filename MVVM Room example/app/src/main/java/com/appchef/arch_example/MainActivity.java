@@ -57,7 +57,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onChanged(List<Note> notes) {
                 // This method will be called whenever the data gets changed in the Database.
-                adapter.setNotes(notes);
+                // submitList is the DiffUtil ListAdapter method
+                adapter.submitList(notes);
             }
         });
 

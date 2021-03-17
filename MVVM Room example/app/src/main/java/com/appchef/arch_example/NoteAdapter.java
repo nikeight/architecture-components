@@ -5,13 +5,36 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import androidx.recyclerview.widget.DiffUtil;
+import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 import java.util.ArrayList;
 import java.util.List;
 
-public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.NoteHolder> {
-    private List<Note> notes = new ArrayList<>();
+public class NoteAdapter extends ListAdapter<Note, NoteAdapter.NoteHolder> {
+
+    // Whenever we declare a list here always init them to avoid NPE.
+
     public onItemClickListener listener;
+
+    public NoteAdapter() {
+        super(DIFF_CALLBACK);
+    }
+    private static final DiffUtil.ItemCallback<Note> DIFF_CALLBACK = new DiffUtil.ItemCallback<Note>() {
+        @Override
+        public boolean areItemsTheSame(Note oldItem, Note newItem) {
+            return oldItem.getId() == newItem.getId();
+        }
+        @Override
+        public boolean areContentsTheSame(Note oldItem, Note newItem) {
+            return oldItem.getTitle().equals(newItem.getTitle()) &&
+                    oldItem.getDescription().equals(newItem.getDescription()) &&
+                    oldItem.getPriority() == newItem.getPriority();
+
+            // .equal method compare the Java object which is always different
+            // Not a good practice.
+        }
+    };
 
     @Override
     public NoteHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -22,24 +45,18 @@ public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.NoteHolder> {
 
     @Override
     public void onBindViewHolder(NoteHolder holder, int position) {
-        Note currentNote = notes.get(position);
+        // getItem is the ListAdapter method.
+
+        Note currentNote = getItem(position);
         holder.textViewTitle.setText(currentNote.getTitle());
         holder.textViewDescription.setText(currentNote.getDescription());
         holder.textViewPriority.setText(String.valueOf(currentNote.getPriority()));
     }
 
-    @Override
-    public int getItemCount() {
-        return notes.size();
-    }
-
-    public void setNotes(List<Note> notes) {
-        this.notes = notes;
-        notifyDataSetChanged();
-    }
 
     public Note getNoteAt(int position){
-        return notes.get(position);
+        // getItem is the ListAdapter method.
+        return getItem(position);
     }
 
     class NoteHolder extends RecyclerView.ViewHolder {
@@ -58,7 +75,8 @@ public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.NoteHolder> {
                 public void onClick(View v) {
                     int position = getAdapterPosition();
                     if (listener != null && position != RecyclerView.NO_POSITION) {
-                        listener.onItemClicked(notes.get(position));
+                        // getItem is the ListAdapter method.
+                        listener.onItemClicked(getItem(position));
                     }
                 }
             });
